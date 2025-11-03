@@ -1,0 +1,58 @@
+# InputShape: [32, 32, 3] # NHWC
+InputShape: [224, 224, 3]
+
+ActivationFunction: "ReLU"
+DropoutRate: 0.5
+
+BatchSize: 16
+LearningRate: 0.0002
+Epochs: 50
+
+Layers:
+  - {
+      Type: Conv,
+      Features: 64,
+      KernelSize: 3,
+      Strides: 1,
+      Padding: SAME,
+      Activation: True,
+      MaxPool: { Size: 2, Stride: 2 },
+    }
+  - {
+      Type: Conv,
+      Features: 128,
+      KernelSize: 3,
+      Strides: 1,
+      Padding: SAME,
+      Activation: True,
+      MaxPool: { Size: 2, Stride: 2 },
+    }
+  - {
+      Type: Conv,
+      Features: 256,
+      KernelSize: 3,
+      Strides: 1,
+      Padding: SAME,
+      Activation: True,
+    }
+  - {
+      Type: Conv,
+      Features: 256,
+      KernelSize: 3,
+      Strides: 1,
+      Padding: SAME,
+      Activation: True,
+    }
+  - {
+      Type: Conv,
+      Features: 128,
+      KernelSize: 3,
+      Strides: 1,
+      Padding: SAME,
+      Activation: True,
+      MaxPool: { Size: 2, Stride: 2 },
+    }
+  - { Type: Flatten }
+  - { Type: Dense, Units: 512, Activation: True, Dropout: 0.5 }
+  - { Type: Dense, Units: 101, Activation: False }
+# Suggested command: python train.py --epochs 15 --batch-size 16 --learning-rate 0.0002 --train-steps 750 --val-steps 120 --test-steps 120 --val-samples 2048 --target-height 224 --target-width 224 --shuffle-buffer 20000 --seed 0
