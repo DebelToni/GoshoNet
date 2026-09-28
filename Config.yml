@@ -1,5 +1,5 @@
-# InputShape: [32, 32, 3] # NHWC
-InputShape: [224, 224, 3]
+InputShape: [32, 32, 3] # NHWC
+# InputShape: [224, 224, 3]
 
 ActivationFunction: "ReLU"
 DropoutRate: 0.5

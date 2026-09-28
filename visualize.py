@@ -12,8 +12,8 @@ import numpy as np
 from flax import serialization
 from omegaconf import OmegaConf
 
-# import Dataset as dataset
 import Dataset_foods as dataset
+# import Dataset as dataset
 from model import MyCNN
 
 
@@ -41,7 +41,14 @@ def main():
     config = OmegaConf.to_container(raw_config, resolve=True)
 
     num_samples = 10
-    bundle = dataset.get_dataset(batch_size=max(16, num_samples))
+    input_shape_cfg = tuple(config["InputShape"])
+    target_height, target_width, _ = input_shape_cfg
+    bundle = dataset.get_dataset(
+        batch_size=max(16, num_samples),
+        target_height=target_height,
+        target_width=target_width,
+        val_samples=min(512, dataset.VAL_SIZE - 1) if hasattr(dataset, "VAL_SIZE") else 512,
+    )
     test_iter = bundle["test_iter_fn"]()
     class_names = bundle.get("class_names")
 
@@ -59,11 +66,13 @@ def main():
     labels = np.asarray(labels_list, dtype=np.int32)
 
     model = MyCNN(config=config)
-    # input_shape = (1, *config["InputShape"])
-    input_shape = (1, config["InputShape"][0])
+    input_shape = (1, *bundle["image_shape"])
+    if tuple(config["InputShape"]) != tuple(bundle["image_shape"]):
+        print(f"⚠ Using dataset image shape {bundle['image_shape']} for model init.")
+    images_jnp = jnp.asarray(images)
     params = load_params(model, input_shape)
 
-    logits = model.apply({"params": params}, images, train=False)
+    logits = model.apply({"params": params}, images_jnp, train=False)
     predictions = np.array(jnp.argmax(logits, axis=-1))
 
     rows = 2
